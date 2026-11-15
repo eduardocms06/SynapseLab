@@ -1,5 +1,5 @@
 from modelo_base import IModelo
-
+import math
 class ClassificadorKNN(IModelo):
     def __init__(self, k = 3):
         self.k = k                                      #Quantidade de vizinhos a serem lidos
@@ -18,11 +18,27 @@ class ClassificadorKNN(IModelo):
             raise ValueError("K deve ser um número inteiro positivo.")
         self.__k = valor
         
+    #Obs: Foi utilizado IA nessa parte para auxiliar na construção dos métodos de treino, previsão e calculo da distância euclidiana.
+    
     def treinar(self, X, y):
-        pass
+        if len(X) != len(y):
+            raise ValueError
+        
+        self.__x_treino = X
+        self.__y_treino = y
+    
+    def __calcular_distancia_euclidiana(self, p1, p2):
+        """Distância euclidiana é a distância entre dois pontos no espaço através de uma linha reta"""
+        resultados = []
+        for a, b in zip(p1, p2):
+            resultados.append((a - b) ** 2)
+        
+        soma = sum(resultados)
+        return math.sqrt(soma)
+             
     
     def prever(self, X):
-        pass
+
     
     def __str__(self):
         """Dunder method para descrever amigávelmente e légivel sobre o estado de um objeto atual para o usuário"""
