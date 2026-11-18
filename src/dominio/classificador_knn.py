@@ -32,13 +32,24 @@ class ClassificadorKNN(IModelo):
         resultados = []
         for a, b in zip(p1, p2):
             resultados.append((a - b) ** 2)
-        
         soma = sum(resultados)
-        return math.sqrt(soma)
-             
+        return math.sqrt(soma)   
     
     def prever(self, X):
-
+        if self.__x_treino is None:
+            raise ValueError("O modelo ainda não tem nenhum treinamento, favor chamar treinar() antes de prever()")
+        
+        resultados = []
+        for amostras in X:
+           
+            distancia = []
+            lista_de_pares = []
+            for indice, ponto_de_treino in enumerate(self.__x_treino):
+                dist = self.__calcular_distancia_euclidiana(amostras, ponto_de_treino)
+                lista_de_pares.append((dist, indice))
+                distancia_ordenada = sorted(lista_de_pares, key=lambda par: par[0])
+                
+                
     
     def __str__(self):
         """Dunder method para descrever amigávelmente e légivel sobre o estado de um objeto atual para o usuário"""
