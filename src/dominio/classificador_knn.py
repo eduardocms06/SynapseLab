@@ -1,5 +1,6 @@
 from modelo_base import IModelo
 import math
+from collections import Counter
 class ClassificadorKNN(IModelo):
     def __init__(self, k = 3):
         self.k = k                                      #Quantidade de vizinhos a serem lidos
@@ -38,18 +39,21 @@ class ClassificadorKNN(IModelo):
     def prever(self, X):
         if self.__x_treino is None:
             raise ValueError("O modelo ainda não tem nenhum treinamento, favor chamar treinar() antes de prever()")
-        
         resultados = []
         for amostras in X:
-           
-            distancia = []
+
             lista_de_pares = []
             for indice, ponto_de_treino in enumerate(self.__x_treino):
                 dist = self.__calcular_distancia_euclidiana(amostras, ponto_de_treino)
                 lista_de_pares.append((dist, indice))
-                distancia_ordenada = sorted(lista_de_pares, key=lambda par: par[0])
-                
-                
+            
+            distancia_ordenada = sorted(lista_de_pares, key=lambda par: par[0])     #Ordena os pares, para poder fazer com que as distância mais próximas sejam vizinhas.
+            k_vizinhos = distancia_ordenada[: self.__k]                             #Pega somente os K vizinhos mais próximos. fatiando a lista do ínicio até K
+            rotulos = [self.__y_treino[i] for _, i in k_vizinhos]                   #Pega somente os índices para buscar no y_treino os valores dos índices buscados ignorando a distância.
+            vencedor = Counter(rotulos).most_common(1)[0][0]
+            resultados.append(vencedor)
+            
+        return resultados
     
     def __str__(self):
         """Dunder method para descrever amigávelmente e légivel sobre o estado de um objeto atual para o usuário"""
