@@ -35,4 +35,37 @@ class Dataset:
             for valor in amostra:
                 if not isinstance(valor,(int, float)) or isinstance(valor, bool):
                     raise ValueError("As características devem ser numéricas.")
-                
+
+    @property
+    def amostras(self):
+        return self.__amostras
+
+    @property
+    def rotulos(self):
+        return self.__rotulos
+
+    @property
+    def quantidade_amostras(self):
+        return len(self.__amostras)
+
+    @property
+    def quantidade_caracteristicas(self):
+        return len(self.__amostras[0])  
+
+    def __len__(self):
+        return len(self.amostras) #Retorna a quantidade de amostras do Dataset.
+
+    def __getitem__(self, indice):
+        return self.amostras[indice], self.rotulos[indice]
+
+    def __str__(self):
+        return (
+            f"Dataset com {len(self)} amostras "
+            f"e {self.quantidade_caracteristicas} caracteristicas "
+        )
+
+    def __repr__(self):
+        return (
+            f"Dataset(amostras={len(self)}, "
+            f"caracteristicas={self.quantidade_caracteristicas})"
+        )
