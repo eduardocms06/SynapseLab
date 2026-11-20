@@ -28,18 +28,34 @@ class Experimento:
         if not valores_k:
             raise ValueError("Informe pelo menos um valor de K.")
 
+        
+        # Converter para tupla antes de validar
+        valores_k = tuple(valores_k)
+
+        # Verificar se existem valores
+        if not valores_k:
+            raise ValueError(
+                "Informe pelo menos um valor de K."
+            )
+
+        # Validar cada valor de K
         for k in valores_k:
             if not isinstance(k, int) or isinstance(k, bool):
-                raise ValueError("K deve ser um numero inteiro.")
+                raise ValueError(
+                    "K deve ser um numero inteiro."
+                )
 
             if k <= 0 or k % 2 == 0 or k > len(X_treino):
-                raise ValueError(f"Valor de K invalido: {k}")
+                raise ValueError(
+                    f"Valor de K invalido: {k}"
+                )
+
 
         self.X_treino = X_treino
         self.y_treino = y_treino
         self.X_teste = X_teste
         self.y_teste = y_teste
-        self.valores_k = tuple(valores_k)
+        self.valores_k = valores_k
 
     def _treinar_e_avaliar(self, k):
         """Treina um modelo independente e calcula a acuracia."""

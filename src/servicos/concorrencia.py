@@ -1,5 +1,6 @@
 
 import threading
+from copy import deepcopy
 
 
 class HistoricoExecucao:
@@ -10,19 +11,21 @@ class HistoricoExecucao:
         self.__trava = threading.Lock()
 
     def registrar_resultado(self, resultado):
-        """Adiciona um resultado ao historico."""
+        """Adiciona uma copia independente do resultado."""
         with self.__trava:
-            self.__registros.append(resultado)
+            self.__registros.append(deepcopy(resultado))
 
     def obter_resultados(self):
-        """Retorna uma copia dos resultados armazenados."""
+        """Retorna uma copia independente dos registros."""
         with self.__trava:
-            return self.__registros.copy()
+            return deepcopy(self.__registros)
 
     def quantidade_resultados(self):
         """Retorna a quantidade de registros."""
         with self.__trava:
             return len(self.__registros)
+
+
 
 def executar_treinamentos(valores_k, tarefa_treinamento, historico=None):
     """Executa varios treinamentos usando threads."""

@@ -101,5 +101,35 @@ class TestesYuri(unittest.TestCase):
                 carregar_json(caminho)
 
 
+    def test_historico_copia_profunda(self):
+        historico = HistoricoExecucao()
+        registro = {"k": 3, "acuracia": 0.95}
+
+        historico.registrar_resultado(registro)
+
+        registro["acuracia"] = 0.10
+
+        copia = historico.obter_resultados()
+        copia[0]["acuracia"] = 0.20
+
+        self.assertEqual(
+            historico.obter_resultados()[0]["acuracia"],
+            0.95
+        )
+
+    def test_gerador_vazio_experimento(self):
+        from src.dominio.experimento import Experimento
+
+        valores_k = (k for k in [])
+
+        with self.assertRaises(ValueError):
+            Experimento(
+                X_treino=[[0], [1], [8]],
+                y_treino=["A", "A", "B"],
+                X_teste=[[0.5]],
+                y_teste=["A"],
+                valores_k=valores_k
+            )
+
 if __name__ == "__main__":
     unittest.main()
