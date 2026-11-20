@@ -46,7 +46,7 @@ class ModeloBase(IModelo):
         if not self.treinado:
             raise ValueError("O modelo ainda não foi treinado.")
         
-    #Texto amigável a ser mostrado para o usuário para identificar o nome do modelo e se o mesmo está treinado ou não através de True ou False.
+    #Texto ser mostrado para o usuário identificar o nome do modelo e se ele está treinado ou não através de True ou False.
     def __str__(self):
         return f"Modelo: {self.nome}, Modelo treinado ({self._treinado})"
     
