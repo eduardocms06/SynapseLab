@@ -1,0 +1,9 @@
+# Arquivos temporarios do Python
+__pycache__/
+*.pyc
+
+# Relatorios gerados durante os testes
+resultados/
+
+# Scripts temporarios de demonstracao
+/teste_*.py
