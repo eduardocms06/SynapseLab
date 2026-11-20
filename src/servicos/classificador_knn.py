@@ -3,7 +3,7 @@ import math
 from collections import Counter
 class ClassificadorKNN(ModeloBase):
     def __init__(self, k = 3):
-        super().__init__(nome = ClassificadorKNN)
+        super().__init__(nome = "ClassificadorKNN")
         self.k = k                                      #Quantidade de vizinhos a serem lidos
         self.__x_treino = None                          #Dados de treino guardados
         self.__y_treino = None                          #Rótulos de treinos guardados
