@@ -2,8 +2,8 @@ from src.dominio.modelo_base import ModeloBase
 import math
 from collections import Counter
 class ClassificadorKNN(ModeloBase):
-    def __init__(self, nome, k = 3):
-        super().__init__(nome, self._treinado)
+    def __init__(self, k = 3):
+        super().__init__(nome = ClassificadorKNN)
         self.k = k                                      #Quantidade de vizinhos a serem lidos
         self.__x_treino = None                          #Dados de treino guardados
         self.__y_treino = None                          #Rótulos de treinos guardados
@@ -61,7 +61,7 @@ class ClassificadorKNN(ModeloBase):
             distancia_ordenada = sorted(lista_de_pares, key=lambda par: par[0])     #Ordena os pares, para poder fazer com que as distância mais próximas sejam vizinhas.
             k_vizinhos = distancia_ordenada[: self.__k]                             #Pega somente os K vizinhos mais próximos. fatiando a lista do ínicio até K
             rotulos = [self.__y_treino[i] for _, i in k_vizinhos]                   #Pega somente os índices para buscar no y_treino os valores dos índices buscados ignorando a distância.
-            vencedor = self._votar_majoritarios(rotulos)                        #Conta a frequência de cada item da lista, pega o primeiro lugar depois pega a primeira posição da tupla.
+            vencedor = self._votar_majoritario(rotulos)                        #Conta a frequência de cada item da lista, pega o primeiro lugar depois pega a primeira posição da tupla.
             resultados.append(vencedor)
             
         return resultados
