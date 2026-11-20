@@ -1,3 +1,5 @@
+import random
+
 class Dataset:
     def __init__(self, amostras, rotulos):
         self.__amostras = amostras
@@ -69,3 +71,39 @@ class Dataset:
             f"Dataset(amostras={len(self)}, "
             f"caracteristicas={self.quantidade_caracteristicas})"
         )
+
+    def dividir_treino_teste(self, proporcao_teste=0.2, embaralhar=True):
+        if not isinstance(proporcao_teste, (int,float)) or isinstance(proporcao_teste, bool):
+            raise TypeError("A proporção deve ser um número.")
+
+        if not 0 < proporcao_teste < 1:
+            raise ValueError("A proporção deve estar entre 0 e 1.")
+
+        if len(self.amostras) < 2:
+            raise ValueError("O Dataset precisa ter pelo menos duas amostras.")
+
+        indices = list(range(len(self.__amostras)))
+
+        if embaralhar:
+            random.shuffle(indices)
+
+        quantidade_teste = max(
+            1,
+            min(len(indices) - 1, int(len(indices) * proporcao_teste))
+        )
+
+        indices_teste = indices[:quantidade_teste]
+        indices_treino = indices[quantidade_teste:]
+
+        # Separar amostras e rótulos
+        X_treino = [self.__amostras[i].copy() for i in indices_treino]
+        y_treino = [self.__rotulos[i] for i in indices_treino]
+
+        X_teste = [self.__amostras[i].copy() for i in indices_teste]
+        y_teste = [self.__rotulos[i] for i in indices_teste]
+
+        # Criar dois novos objetos Dataset
+        dataset_treino = Dataset(X_treino, y_treino)
+        dataset_teste = Dataset(X_teste, y_teste)
+
+        return dataset_treino, dataset_teste
