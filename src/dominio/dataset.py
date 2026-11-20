@@ -1,5 +1,5 @@
 import random
-
+import math
 class Dataset:
     def __init__(self, amostras, rotulos):
         self.__amostras = amostras
@@ -35,16 +35,19 @@ class Dataset:
                 raise ValueError("Todas as amostras devem possuir a mesma dimensão.")
 
             for valor in amostra:
-                if not isinstance(valor,(int, float)) or isinstance(valor, bool):
+                if not isinstance(valor, (int, float)) or isinstance(valor, bool):
                     raise ValueError("As características devem ser numéricas.")
+
+                if not math.isfinite(valor):
+                    raise ValueError("As características devem possuir valores finitos.")
 
     @property
     def amostras(self):
-        return self.__amostras
+        return [amostra.copy() for amostra in self.__amostras]
 
     @property
     def rotulos(self):
-        return self.__rotulos
+        return self.__rotulos.copy()
 
     @property
     def quantidade_amostras(self):
@@ -58,7 +61,7 @@ class Dataset:
         return len(self.amostras) #Retorna a quantidade de amostras do Dataset.
 
     def __getitem__(self, indice):
-        return self.amostras[indice], self.rotulos[indice]
+        return self.__amostras[indice].copy(), self.__rotulos[indice]
 
     def __str__(self):
         return (
@@ -73,6 +76,9 @@ class Dataset:
         )
 
     def dividir_treino_teste(self, proporcao_teste=0.2, embaralhar=True):
+        if not isinstance(embaralhar, bool):
+            raise TypeError("O parâmetro embaralhar deve ser booleano.")
+
         if not isinstance(proporcao_teste, (int,float)) or isinstance(proporcao_teste, bool):
             raise TypeError("A proporção deve ser um número.")
 
