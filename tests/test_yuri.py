@@ -131,5 +131,31 @@ class TestesYuri(unittest.TestCase):
                 valores_k=valores_k
             )
 
+    def test_json_preservado_em_erro(self):
+        dados = [{"k": 3, "acuracia": 0.95}]
+
+        with tempfile.TemporaryDirectory() as pasta:
+            caminho = Path(pasta) / "teste.json"
+
+            salvar_json(dados, caminho)
+
+            # Simular erro de serializacao
+            dados_invalidos = [{"valor": {1, 2, 3}}]
+
+            with self.assertRaises(PersistenciaError):
+                salvar_json(dados_invalidos, caminho)
+
+            # Verificar se o arquivo original foi preservado
+            resultado = carregar_json(caminho)
+
+            self.assertEqual(resultado, dados)
+
+            # Verificar se nao sobraram arquivos temporarios
+            arquivos = list(Path(pasta).iterdir())
+            self.assertEqual(arquivos, [caminho])
+
+
+
+
 if __name__ == "__main__":
     unittest.main()
