@@ -1,7 +1,7 @@
 from src.dominio.modelo_base import ModeloBase
 from collections import Counter
 
-#Foi utilizado ajuda de LLM para a criação e dúvidas sobre como fazer as regras do classificador.
+#Foi utilizado ajuda de LLM para a criação e retiraar dúvidas sobre como fazer as regras do classificador.
 class ClassificadorRegras(ModeloBase):
     """Modelo classificador simples usado somente para comparação. Se o modelo ClassificadorKNN for pior que ele, não compensa utilizar o classificador"""
     
@@ -37,16 +37,22 @@ class ClassificadorRegras(ModeloBase):
         )
     
     def treinar(self, X, y):
+        """Método usado para a fase de aprendizado ensinando o modelo com respostas anteriores onde X são as caracteristicas e y os gabaritos
+            Responsavel por encontar o __limiar e eleger quem e o 'vencedor' de cada lado (abaixo e acima)"""
+        
         self._validar_dados_treino(X, y)
         
-        if self.__limiar == None:
+        #Se o limiar não foi fixado, calcula pela média da coluna de corte
+        if self.__limiar is None:
             lista_peso = [linha[self.__indice_corte] for linha in X]
-            limiar_medio = sum(lista_peso) / len(lista_peso)
+            self.__limiar = sum(lista_peso) / len(lista_peso)
 
         rotulos_acima = []
-        rotulos_abaixo = []    
-        for peso, rotulo in zip(X, y):
-            if peso >= limiar_medio:
+        rotulos_abaixo = []  
+          
+        for amostra, rotulo in zip(X, y):
+            
+            if amostra[self.__indice_corte] >= self.__limiar:
                 rotulos_acima.append(rotulo)
             else:
                 rotulos_abaixo.append(rotulo)
