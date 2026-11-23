@@ -17,7 +17,17 @@ class ClassificadorRegras(ModeloBase):
         return self.__limiar
     
     def __str__(self):
-        return 
+        #Representação para o usuário
+        
+        status = "Treinado" if self.treinado else "Não treinado"
+        
+        if self.treinado:
+            return (f"Classificador por Regras (Status: {status})"
+                    f"Coluna de corte: {self.__indice_corte}, Limiar: {self.__limiar:.2f}"        
+            )
+        return (f"Classificador por Regras (Status: {status})"
+                f"Coluna de corte: {self.__indice_corte}"
+        )
     
     def __repr__(self):
         return 
