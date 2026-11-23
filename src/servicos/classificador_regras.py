@@ -30,7 +30,11 @@ class ClassificadorRegras(ModeloBase):
         )
     
     def __repr__(self):
-        return 
+        #Representação para depuração
+        
+        return (f"Classificador por Regras: {self.__limiar}"
+                f"Índice de Corte: {self.__indice_corte}"        
+        )
     
     def treinar(self, X, y):
         self._validar_dados_treino(X, y)
