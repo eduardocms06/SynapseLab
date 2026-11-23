@@ -40,3 +40,22 @@ class ClassificadorRegras(ModeloBase):
         self.__classe_acima = self._votar_majoritario(rotulos_acima)
         self.__classe_abaixo = self._votar_majoritario(rotulos_abaixo)
         self._treinado = True
+        
+    def prever(self, X):
+        """Recebe os dados novos dos quais não se sabe o gabarito e consulta as regras do treino, gerando uma lista com as classes preditas
+            para cada amostra recebida"""
+        
+        self._garantir_treinado()
+        
+        predicoes = []
+        
+        for amostra in X:
+            valor = amostra[self.__indice_corte]
+            
+            if valor >= self.__limiar:
+                predicoes.append(self.__classe_acima)
+            else:
+                predicoes.append(self.__classe_abaixo)
+                
+        return predicoes
+        
