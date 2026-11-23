@@ -15,3 +15,17 @@ class ClassificadorRegras(ModeloBase):
     def limiar(self):
         return self.__limiar
     
+    def __str__(self):
+        return 
+    
+    def __repr__(self):
+        return 
+    
+    def treinar(self, X, y):
+        self._validar_dados_treino(X, y)
+        
+        if self.__limiar == None:
+            lista_peso = [linha[self.__indice_corte] for linha in X]
+            limiar_medio = sum(lista_peso) / len(lista_peso)
+            
+        
