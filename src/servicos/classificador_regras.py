@@ -27,5 +27,13 @@ class ClassificadorRegras(ModeloBase):
         if self.__limiar == None:
             lista_peso = [linha[self.__indice_corte] for linha in X]
             limiar_medio = sum(lista_peso) / len(lista_peso)
-            
+
+        rotulos_acima = []
+        rotulos_abaixo = []    
+        for peso, rotulo in zip(X, y):
+            if peso >= limiar_medio:
+                rotulos_acima.append(rotulo)
+            else:
+                rotulos_abaixo.append(rotulo)
+        
         
