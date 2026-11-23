@@ -36,9 +36,14 @@ class ClassificadorRegras(ModeloBase):
                 rotulos_acima.append(rotulo)
             else:
                 rotulos_abaixo.append(rotulo)
-
-        self.__classe_acima = self._votar_majoritario(rotulos_acima)
-        self.__classe_abaixo = self._votar_majoritario(rotulos_abaixo)
+                
+        """FallBack de segurança, contra valores absurdos no limiar, sendo aa classe padrão um 'chute' da classe mais votada em y"""
+        classe_padrao = self._votar_majoritario(y)
+        
+        #Define rotulos_acima em __classe_acima, somente se houver item (True) o mesmo vale para __classe_abaixo  
+        self.__classe_acima = self._votar_majoritario(rotulos_acima) if rotulos_acima else classe_padrao                
+        self.__classe_abaixo = self._votar_majoritario(rotulos_abaixo) if rotulos_abaixo else classe_padrao
+        
         self._treinado = True
         
     def prever(self, X):
