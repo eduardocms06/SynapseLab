@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-
+from collections import Counter
 class IModelo(ABC):
     """Interface que define parâmetros obrigatórios para todos os modelos do projeto."""
     
@@ -35,6 +35,10 @@ class ModeloBase(IModelo):
     def nome_modelo(self):
         #Retorna o nome definido na instanciação do __init__ de modeloBase
         return self._nome
+    
+    #Decidir alterar _votar_majoritário para ModeloBase, pois mais de um modelo utiliza esse método, facilitando assim a sua utilização
+    def _votar_majoritario(self, lista):
+        return Counter(lista).most_common(1)[0][0]
         
     #Verifica se os dados estão corretos, se o tamanho de X e y são iguais.
     def _validar_dados_treino(self, X, y):

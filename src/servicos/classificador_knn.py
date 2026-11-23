@@ -1,6 +1,5 @@
 from src.dominio.modelo_base import ModeloBase
 import math
-from collections import Counter
 class ClassificadorKNN(ModeloBase):
     def __init__(self, k = 3):
         super().__init__(nome = "ClassificadorKNN")
@@ -35,9 +34,6 @@ class ClassificadorKNN(ModeloBase):
             resultados.append((a - b) ** 2)
         soma = sum(resultados)
         return math.sqrt(soma)
-    
-    def _votar_majoritario(self, lista):
-           return Counter(lista).most_common(1)[0][0]
        
     @property
     def qtd_amostras_treinadas(self):

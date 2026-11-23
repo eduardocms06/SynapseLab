@@ -1,4 +1,5 @@
 from src.dominio.modelo_base import ModeloBase
+from collections import Counter
 
 #Foi utilizado ajuda de LLM para a criação e dúvidas sobre como fazer as regras do classificador.
 class ClassificadorRegras(ModeloBase):
@@ -35,5 +36,7 @@ class ClassificadorRegras(ModeloBase):
                 rotulos_acima.append(rotulo)
             else:
                 rotulos_abaixo.append(rotulo)
-        
-        
+
+        self.__classe_acima = self._votar_majoritario(rotulos_acima)
+        self.__classe_abaixo = self._votar_majoritario(rotulos_abaixo)
+        self._treinado = True
