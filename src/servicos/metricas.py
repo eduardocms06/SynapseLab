@@ -36,10 +36,21 @@ class Metrica:
     def calcular_precisao(y_real, y_pred, classe_pos):
         """Calcula a precisão para a classe positiva informada, através da divisão entre quantidade de verdadeiros positivos
             dividido pela quantidade de verd. pos. + falsos positivos"""
-        Metrica._validar_listas
+        Metrica._validar_listas(y_real, y_pred) 
         vp, fp, _ = Metrica._contar_resultados(y_real, y_pred, classe_pos)
         
         if (vp + fp) == 0:
             return 0.0
         
         return vp / (vp + fp)
+    
+    @staticmethod
+    def calcular_revocacao(y_real, y_pred, classe_pos):
+        """Calcula o Recall para a classe positiva informada, por vp / vp + fn"""
+        Metrica._validar_listas(y_real, y_pred)
+        
+        vp, fn, _ = Metrica._contar_resultados(y_real, y_pred, classe_pos)
+        
+        if (vp + fn) == 0:
+            return 0.0 
+        return vp / vp + fn  
