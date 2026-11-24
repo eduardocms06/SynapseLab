@@ -1,5 +1,6 @@
 from src.dominio.modelo_base import ModeloBase
-
+from classificador_knn import ClassificadorKNN
+import math
 class ClassificadorCentroide(ModeloBase):
     """Calcula o ponto médio de uma classe, por exemplo, se Gato tem duas amostras: [2.0, 10.0] e [4.0, 20.0]
         O centroide de Gato é a média de cada coluna [3.0, 15.0]"""
@@ -37,3 +38,29 @@ class ClassificadorCentroide(ModeloBase):
             self.__centroides[rotulo] = ponto_centroide                                     #Adiciona o ponto médio de cada amostra em self.__centroide
             
         self._treinado = True
+        
+    def prever(self, X):
+        self._garantir_treinado()
+        
+        previsoes = []
+        for amostra in X:
+            
+            distancia_amostra = []
+            for classe, ponto_centroide in self.__centroides.items():                       #Anda por cada classe e ponto_centroide calculado dentro de self.__centroides
+                
+                resultados = []
+                #Calcula as distâncias entre a amostra e o ponto_centroide
+                for a, b in zip(amostra, ponto_centroide):
+                    resultados.append((a-b)**2)
+                    
+                soma = sum(resultados)
+                #Adiciona a tupla (distancia, classe) dentro da lista de distancia da amostra
+                distancia_amostra.append((math.sqrt(soma), classe))
+            
+            menor_par = min(distancia_amostra)
+            previsoes.append(menor_par[1])
+        return previsoes
+            
+            
+            
+            
