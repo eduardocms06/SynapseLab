@@ -16,9 +16,24 @@ class ClassificadorCentroide(ModeloBase):
         """ '*amostras' é equivalente a: (2.0, 4.0) e (10.0, 20.0) de [[2.0, 10.0], [4.0, 20.0]]
             sendo usado para reunir elementos pela posição em uma tupla com a ajuda de zip"""
         ponto_centroide = []
-        for x, y in zip(*amostras):
-            #x recebe as duas primeria características
-            #y recebe as duas segundas características
-            media_x = sum(x) / 2
-            media_y = sum(y) / 2 
-            return [(media_x, media_y)]
+        for coluna in zip(*amostras):
+            #coluna irá receber (1º posição, 2º posição) a cada rodada do for
+            media = sum(coluna) / len(coluna)
+            ponto_centroide.append(media)
+        return ponto_centroide
+    
+    def treinar(self, X, y):
+        self._validar_dados_treino(X,y)
+        self.__centroides = {}                              #reinicio do dicionario
+        grupos = {}                                         #Dicionário temporário para separar as amostras
+        
+        for amostra, rotulo in zip(X, y):
+            if rotulo not in grupos:
+                grupos[rotulo] = []                         #abre uma lista a partir do rotulo se não houver nenhum em grupo
+            grupos[rotulo].append(amostra)                  #Adiciona a amostra na lista de rotulo
+            
+        for rotulo, amostra_classe in grupos.items():
+            ponto_centroide = self.__calcular_centroides(amostra_classe)                    #calcula o centroide de cada "pasta" amostra_classe
+            self.__centroides[rotulo] = ponto_centroide                                     #Adiciona o ponto médio de cada amostra em self.__centroide
+            
+        self._treinado = True
