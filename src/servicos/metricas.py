@@ -8,7 +8,7 @@ class Metrica:
     
     @staticmethod
     def _contar_resultados(y_real, y_pred, classe_pos):
-        """Calcula valores positivos, falso positivos e falsos negativos para a classe positiva informada"""
+        """Calcula verdadeiros positivos, falso positivos e falsos negativos para a classe positiva informada"""
         vp = 0
         fp = 0
         fn = 0
@@ -31,3 +31,15 @@ class Metrica:
         #Soma-se 1 para cada vez que real for igual à predição
         acertos = sum( 1 for real, pred in zip(y_real, y_pred) if real == pred)
         return acertos / len(y_real)
+    
+    @staticmethod
+    def calcular_precisao(y_real, y_pred, classe_pos):
+        """Calcula a precisão para a classe positiva informada, através da divisão entre quantidade de verdadeiros positivos
+            dividido pela quantidade de verd. pos. + falsos positivos"""
+        Metrica._validar_listas
+        vp, fp, _ = Metrica._contar_resultados(y_real, y_pred, classe_pos)
+        
+        if (vp + fp) == 0:
+            return 0.0
+        
+        return vp / (vp + fp)
