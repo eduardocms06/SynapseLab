@@ -5,8 +5,9 @@ from collections import Counter
 class ClassificadorRegras(ModeloBase):
     """Modelo classificador simples usado somente para comparação. Se o modelo ClassificadorKNN for pior que ele, não compensa utilizar o classificador"""
     
-    def __init__(self, limiar=None, indice_corte=0):
-        super().__init__(nome="Classificador por Regras")
+    def __init__(self, nome = "Classificador por Regras", limiar=None, indice_corte=0):
+        super().__init__(nome)
+        
         self.__limiar = limiar
         self.__indice_corte = indice_corte
         self.__classe_acima = None

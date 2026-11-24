@@ -1,8 +1,8 @@
 from src.dominio.modelo_base import ModeloBase
 import math
 class ClassificadorKNN(ModeloBase):
-    def __init__(self, k = 3):
-        super().__init__(nome = "ClassificadorKNN")
+    def __init__(self,nome = "ClassificadorKNN", k = 3):
+        super().__init__(nome)
         self.k = k                                      #Quantidade de vizinhos a serem lidos
         self.__x_treino = None                          #Dados de treino guardados
         self.__y_treino = None                          #Rótulos de treinos guardados
