@@ -17,13 +17,15 @@ class Metrica:
         vp = 0
         fp = 0
         fn = 0
-        if y_real == classe_pos and y_pred == classe_pos:
-            vp +=1
-        #Quando o modelo chuta a classe positiva mas erra 
-        elif y_real != classe_pos and y_pred == classe_pos:         
-            fp +=1
-        elif y_real == classe_pos and y_pred != classe_pos:
-            fn +=1
+        
+        for real, pred in zip(y_real, y_pred):
+            if real == classe_pos and pred == classe_pos:
+                vp +=1
+            #Quando o modelo chuta a classe positiva mas erra 
+            elif real != classe_pos and pred == classe_pos:         
+                fp +=1
+            elif real == classe_pos and pred != classe_pos:
+                fn +=1
         
         return vp, fp, fn
          
