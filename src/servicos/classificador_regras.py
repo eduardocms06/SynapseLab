@@ -75,7 +75,7 @@ class ClassificadorRegras(ModeloBase):
         
         predicoes = []
         
-        for amostra in X:
+        for amostra in x:
             valor = amostra[self.__indice_corte]
             
             if valor >= self.__limiar:

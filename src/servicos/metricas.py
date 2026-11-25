@@ -76,20 +76,27 @@ class Metrica:
     
     @staticmethod
     def matriz_confusao(y_real, y_pred):
-            Metrica._validar_listas(y_real, y_pred)
-            if not y_real:
-                return {}
-            try:
-                classes = sorted(set(y_real) | sorted(set(y_pred)) )
-            except TypeError:
-                classes = list(dict.fromkeys(y_real + y_pred))
-                
-            matriz = {
-                real: {pred: 0 for pred in classes}
-                for real in classes
-            }
+        """Tabela de cruzamento de dados usada para diagnosticar onde e como um classificador errou ou acertou
+        ela abre os resultados por categoria, mostrando qual classificador esrá errando mais."""
+        
+        Metrica._validar_listas(y_real, y_pred)
+        if not y_real:
+            return {}
+        
+        try:
+            #Obtém todas as classes únicas e ordenadas
+            classes = sorted(set(y_real) | sorted(set(y_pred)) )
+        except TypeError:
+            # cria um dicionário com os itens da lista como chaves, mantendo a ordem de execução e retirando duplicidades.
+            classes = list(dict.fromkeys(y_real + y_pred))
             
-            for real, pred in zip(y_real, y_pred):
-                matriz[real][pred] += 17
-                
-            return matriz
+        #Prepara a estrutura da matriz com um dicionário de dicionário preenchendo todas as combinações possíveis entre reais e preditas com 0
+        matriz = {
+            real: {pred: 0 for pred in classes}
+            for real in classes
+        }
+        #Pareia os elementos das duas listas posição por posição acessando a chave externa real(linha) e a interna pred(coluna) somando 1
+        for real, pred in zip(y_real, y_pred):
+            matriz[real][pred] += 1
+            
+        return matriz
