@@ -61,17 +61,17 @@ class ClassificadorCentroide(ModeloBase):
             previsoes.append(menor_par[1])
         return previsoes
             
-        def __str__(self) -> str:
-            """Representação amigável do estado atual do modelo para o usuário."""
-            
-            status = "Treinado" if self.treinado else "Não treinado"
-            if self.treinado:
-                classes = list(self.__centroides.keys())
-                return (
-                    f"{self.nome} (Status: {status}, "
-                    f"Classes aprendidas: {classes})"
-                )
-            return f"{self.nome} (Status: {status})"
+    def __str__(self) -> str:
+        """Representação amigável do estado atual do modelo para o usuário."""
+        
+        status = "Treinado" if self.treinado else "Não treinado"
+        if self.treinado:
+            classes = list(self.__centroides.keys())
+            return (
+                f"{self.nome} (Status: {status}, "
+                f"Classes aprendidas: {classes})"
+            )
+        return f"{self.nome} (Status: {status})"
             
             
             
