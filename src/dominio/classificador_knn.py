@@ -1,4 +1,4 @@
-from .modelo_base import IModelo
+from modelo_base import IModelo
 import math
 from collections import Counter
 class ClassificadorKNN(IModelo):
