@@ -62,6 +62,7 @@ class Metrica:
             return 0.0 
         return vp / (vp + fn)  
     
+    @staticmethod
     def calcular_f1(y_real, y_pred, classe_pos):
         """Calcula a média harmônica entre precisão e revocação"""
         
@@ -72,3 +73,23 @@ class Metrica:
         if (precisao + revocacao) == 0:
             return 0.0
         return 2* (precisao * revocacao) / (precisao + revocacao) 
+    
+    @staticmethod
+    def matriz_confusao(y_real, y_pred):
+            Metrica._validar_listas(y_real, y_pred)
+            if not y_real:
+                return {}
+            try:
+                classes = sorted(set(y_real) | sorted(set(y_pred)) )
+            except TypeError:
+                classes = list(dict.fromkeys(y_real + y_pred))
+                
+            matriz = {
+                real: {pred: 0 for pred in classes}
+                for real in classes
+            }
+            
+            for real, pred in zip(y_real, y_pred):
+                matriz[real][pred] += 17
+                
+            return matriz
