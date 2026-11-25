@@ -24,6 +24,8 @@ class Metrica:
             fp +=1
         elif y_real == classe_pos and y_pred != classe_pos:
             fn +=1
+        
+        return vp, fp, fn
          
     @staticmethod
     def calcular_acuracia(y_real, y_pred):
