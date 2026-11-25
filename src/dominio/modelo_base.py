@@ -9,7 +9,7 @@ class IModelo(ABC):
         pass
     
     @abstractmethod
-    def prever(self, X):
+    def prever(self, x):
         """Realiza predições para as amostras em X"""
         pass
     @abstractmethod

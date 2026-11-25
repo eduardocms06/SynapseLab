@@ -39,11 +39,11 @@ class ClassificadorCentroide(ModeloBase):
             
         self._treinado = True
         
-    def prever(self, X):
+    def prever(self, x):
         self._garantir_treinado()
         
         previsoes = []
-        for amostra in X:
+        for amostra in x:
             
             distancia_amostra = []
             for classe, ponto_centroide in self.__centroides.items():                       #Anda por cada classe e ponto_centroide calculado dentro de self.__centroides

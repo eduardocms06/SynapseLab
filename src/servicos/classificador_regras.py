@@ -67,7 +67,7 @@ class ClassificadorRegras(ModeloBase):
         
         self._treinado = True
         
-    def prever(self, X):
+    def prever(self, x):
         """Recebe os dados novos dos quais não se sabe o gabarito e consulta as regras do treino, gerando uma lista com as classes preditas
             para cada amostra recebida"""
         

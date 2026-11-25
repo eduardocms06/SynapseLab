@@ -42,12 +42,12 @@ class ClassificadorKNN(ModeloBase):
         else:
             return len(self.__x_treino)
     
-    def prever(self, X):
+    def prever(self, x):
         #Chama o método da classe mãe para fazer a verificação
         self._garantir_treinado()
         
         resultados = []
-        for amostras in X:                                                          #Pega as amostras em X para fazer os cálculos necessários de previsão da IA
+        for amostras in x:                                                          #Pega as amostras em X para fazer os cálculos necessários de previsão da IA
 
             lista_de_pares = []
             for indice, ponto_de_treino in enumerate(self.__x_treino):
