@@ -87,7 +87,7 @@ class Metrica:
         
         try:
             #Obtém todas as classes únicas e ordenadas
-            classes = sorted(set(y_real) | sorted(set(y_pred)) )
+            classes = sorted(set(y_real) | set(y_pred))
         except TypeError:
             # cria um dicionário com os itens da lista como chaves, mantendo a ordem de execução e retirando duplicidades.
             classes = list(dict.fromkeys(y_real + y_pred))
