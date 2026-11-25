@@ -73,5 +73,11 @@ class ClassificadorCentroide(ModeloBase):
             )
         return f"{self.nome} (Status: {status})"
             
-            
-            
+    def __repr__(self) -> str:
+            """Representação do objeto para depuração."""
+            return (
+                f"ClassificadorCentroide(nome='{self.nome}', "
+                f"treinado={self.treinado}, "
+                f"qtd_centroides={len(self.__centroides)})"
+            )   
+                
