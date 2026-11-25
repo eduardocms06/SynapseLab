@@ -1,3 +1,4 @@
+from typing import Any
 class Metrica:
     """A classe métrica deve conter seus métodos como estáticos, sendo utilizada para consultar cálculos,
     funciona como módulo utilitário dispensando parâmetros self. permitindo chamadas diretas."""
@@ -12,7 +13,7 @@ class Metrica:
             raise ValueError("As listas possuem dimensões diferentes.")
     
     @staticmethod
-    def _contar_resultados(y_real: list, y_pred: list, classe_pos: any)-> tuple[int, int, int]:
+    def _contar_resultados(y_real: list, y_pred: list, classe_pos: Any)-> tuple[int, int, int]:
         """Calcula verdadeiros positivos, falso positivos e falsos negativos para a classe positiva informada"""
         vp = 0
         fp = 0
@@ -42,7 +43,7 @@ class Metrica:
         return acertos / len(y_real)
     
     @staticmethod
-    def calcular_precisao(y_real: list, y_pred: list, classe_pos: any) -> float:
+    def calcular_precisao(y_real: list, y_pred: list, classe_pos: Any) -> float:
         """Calcula a precisão para a classe positiva informada, através da divisão entre quantidade de verdadeiros positivos
             dividido pela quantidade de verd. pos. + falsos positivos"""
             
@@ -55,7 +56,7 @@ class Metrica:
         return vp / (vp + fp)
     
     @staticmethod
-    def calcular_revocacao(y_real: list, y_pred: list, classe_pos: any) -> float:
+    def calcular_revocacao(y_real: list, y_pred: list, classe_pos: Any) -> float:
         """Calcula o Recall para a classe positiva informada, por vp / vp + fn"""
         
         Metrica._validar_listas(y_real, y_pred)
@@ -67,7 +68,7 @@ class Metrica:
         return vp / (vp + fn)  
     
     @staticmethod
-    def calcular_f1(y_real: list, y_pred: list, classe_pos: any) -> float:
+    def calcular_f1(y_real: list, y_pred: list, classe_pos: Any) -> float:
         """Calcula a média harmônica entre precisão e revocação"""
         
         Metrica._validar_listas(y_real, y_pred)
