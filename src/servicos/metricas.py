@@ -7,12 +7,12 @@ class Metrica:
     #e como verificar os vp, fp e fn
     
     @staticmethod
-    def _validar_listas(y_real, y_pred):
+    def _validar_listas(y_real: list, y_pred: list) -> None:
         if len(y_real) != len(y_pred):
             raise ValueError("As listas possuem dimensões diferentes.")
     
     @staticmethod
-    def _contar_resultados(y_real, y_pred, classe_pos):
+    def _contar_resultados(y_real: list, y_pred: list, classe_pos: any)-> tuple[int, int, int]:
         """Calcula verdadeiros positivos, falso positivos e falsos negativos para a classe positiva informada"""
         vp = 0
         fp = 0
@@ -30,7 +30,7 @@ class Metrica:
         return vp, fp, fn
          
     @staticmethod
-    def calcular_acuracia(y_real, y_pred):
+    def calcular_acuracia(y_real: list, y_pred: list) -> float:
         """Calcula a proporção de predições corretas sobre o total."""
         Metrica._validar_listas(y_real, y_pred)     
            
@@ -42,7 +42,7 @@ class Metrica:
         return acertos / len(y_real)
     
     @staticmethod
-    def calcular_precisao(y_real, y_pred, classe_pos):
+    def calcular_precisao(y_real: list, y_pred: list, classe_pos: any) -> float:
         """Calcula a precisão para a classe positiva informada, através da divisão entre quantidade de verdadeiros positivos
             dividido pela quantidade de verd. pos. + falsos positivos"""
             
@@ -55,7 +55,7 @@ class Metrica:
         return vp / (vp + fp)
     
     @staticmethod
-    def calcular_revocacao(y_real, y_pred, classe_pos):
+    def calcular_revocacao(y_real: list, y_pred: list, classe_pos: any) -> float:
         """Calcula o Recall para a classe positiva informada, por vp / vp + fn"""
         
         Metrica._validar_listas(y_real, y_pred)
@@ -67,7 +67,7 @@ class Metrica:
         return vp / (vp + fn)  
     
     @staticmethod
-    def calcular_f1(y_real, y_pred, classe_pos):
+    def calcular_f1(y_real: list, y_pred: list, classe_pos: any) -> float:
         """Calcula a média harmônica entre precisão e revocação"""
         
         Metrica._validar_listas(y_real, y_pred)
@@ -79,7 +79,7 @@ class Metrica:
         return 2* (precisao * revocacao) / (precisao + revocacao) 
     
     @staticmethod
-    def matriz_confusao(y_real, y_pred):
+    def matriz_confusao(y_real: list, y_pred: list) -> dict:
         """Tabela de cruzamento de dados usada para diagnosticar onde e como um classificador errou ou acertou
         ela abre os resultados por categoria, mostrando qual classificador esrá errando mais."""
         
