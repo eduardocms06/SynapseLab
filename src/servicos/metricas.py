@@ -30,8 +30,8 @@ class Metrica:
     @staticmethod
     def calcular_acuracia(y_real, y_pred):
         """Calcula a proporção de predições corretas sobre o total."""
-        Metrica._validar_listas()
-        
+        Metrica._validar_listas(y_real, y_pred)     
+           
         if not y_real:
             return 0.0
         
