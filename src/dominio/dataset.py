@@ -8,7 +8,7 @@ class Dataset:
         self.__validar_dados()
 
     def __validar_dados(self):
-        if not isinstance(self.amostras, list):
+        if not isinstance(self.__amostras, list):
             raise TypeError("As amostras devem ser uma lista.")
 
         if not isinstance(self.__rotulos, list):
