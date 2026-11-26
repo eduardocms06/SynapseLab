@@ -1,6 +1,7 @@
 from src.dominio.modelo_base import ModeloBase
 from classificador_knn import ClassificadorKNN
 import math
+from typing import Any
 class ClassificadorCentroide(ModeloBase):
     """Calcula o ponto médio de uma classe, por exemplo, se Gato tem duas amostras: [2.0, 10.0] e [4.0, 20.0]
         O centroide de Gato é a média de cada coluna [3.0, 15.0]"""
@@ -10,10 +11,10 @@ class ClassificadorCentroide(ModeloBase):
         self.__centroides = {}
         
     @property
-    def centroide(self):
+    def centroide(self) -> dict[Any, list[float]]:
         return self.__centroides
     
-    def __calcular_centroides(self, amostras):
+    def __calcular_centroides(self, amostras: list[list[float]]) -> list[float]:    
         """ '*amostras' é equivalente a: (2.0, 4.0) e (10.0, 20.0) de [[2.0, 10.0], [4.0, 20.0]]
             sendo usado para reunir elementos pela posição em uma tupla com a ajuda de zip"""
         ponto_centroide = []
@@ -23,7 +24,7 @@ class ClassificadorCentroide(ModeloBase):
             ponto_centroide.append(media)
         return ponto_centroide
     
-    def treinar(self, X, y):
+    def treinar(self, X: list[list[float]], y: list[Any]) -> None:
         self._validar_dados_treino(X,y)
         self.__centroides = {}                              #reinicio do dicionario
         grupos = {}                                         #Dicionário temporário para separar as amostras
@@ -39,7 +40,7 @@ class ClassificadorCentroide(ModeloBase):
             
         self._treinado = True
         
-    def prever(self, x):
+    def prever(self, x: list[list[float]]) -> list[Any]:
         self._garantir_treinado()
         
         previsoes = []
@@ -61,6 +62,23 @@ class ClassificadorCentroide(ModeloBase):
             previsoes.append(menor_par[1])
         return previsoes
             
+    def __str__(self) -> str:
+        """Representação amigável do estado atual do modelo para o usuário."""
+        
+        status = "Treinado" if self.treinado else "Não treinado"
+        if self.treinado:
+            classes = list(self.__centroides.keys())
+            return (
+                f"{self.nome} (Status: {status}, "
+                f"Classes aprendidas: {classes})"
+            )
+        return f"{self.nome} (Status: {status})"
             
-            
-            
+    def __repr__(self) -> str:
+            """Representação do objeto para depuração."""
+            return (
+                f"ClassificadorCentroide(nome='{self.nome}', "
+                f"treinado={self.treinado}, "
+                f"qtd_centroides={len(self.__centroides)})"
+            )   
+                

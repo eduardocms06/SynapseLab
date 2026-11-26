@@ -1,5 +1,6 @@
 from src.dominio.modelo_base import ModeloBase
 from collections import Counter
+from typing import Any
 
 #Foi utilizado ajuda de LLM para a criação e retiraar dúvidas sobre como fazer as regras do classificador.
 class ClassificadorRegras(ModeloBase):
@@ -14,10 +15,10 @@ class ClassificadorRegras(ModeloBase):
         self.__classe_abaixo = None
         
     @property
-    def limiar(self):
+    def limiar(self) -> float | None:
         return self.__limiar
     
-    def __str__(self):
+    def __str__(self) -> str:
         #Representação para o usuário
         
         status = "Treinado" if self.treinado else "Não treinado"
@@ -30,14 +31,14 @@ class ClassificadorRegras(ModeloBase):
                 f"Coluna de corte: {self.__indice_corte}"
         )
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         #Representação para depuração
         
         return (f"Classificador por Regras: {self.__limiar}"
                 f"Índice de Corte: {self.__indice_corte}"        
         )
     
-    def treinar(self, X, y):
+    def treinar(self, X: list[list[float]], y: list[Any]) -> None:
         """Método usado para a fase de aprendizado ensinando o modelo com respostas anteriores onde X são as caracteristicas e y os gabaritos
             Responsavel por encontar o __limiar e eleger quem e o 'vencedor' de cada lado (abaixo e acima)"""
         
@@ -67,7 +68,7 @@ class ClassificadorRegras(ModeloBase):
         
         self._treinado = True
         
-    def prever(self, x):
+    def prever(self, x: list[list[float]]) -> list[Any]:
         """Recebe os dados novos dos quais não se sabe o gabarito e consulta as regras do treino, gerando uma lista com as classes preditas
             para cada amostra recebida"""
         

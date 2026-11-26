@@ -1,5 +1,6 @@
 from src.dominio.modelo_base import ModeloBase
 import math
+from typing import Any
 class ClassificadorKNN(ModeloBase):
     def __init__(self,nome = "ClassificadorKNN", k = 3):
         super().__init__(nome)
@@ -8,12 +9,12 @@ class ClassificadorKNN(ModeloBase):
         self.__y_treino = None                          #Rótulos de treinos guardados
         
     @property
-    def k(self):
-        """ Leitura do valor passado para K """
+    def k(self) -> int:
+        """ Leitura do valor passado para K número de vizinhos configurado"""
         return self.__k
     
     @k.setter
-    def k(self, valor):
+    def k(self, valor: int) -> None:
         """ Verificação se o valor de K definido é válido antes de sua instanciação."""
         if not isinstance(valor, int) or valor <= 0:
             raise ValueError("K deve ser um número inteiro positivo.")
@@ -21,13 +22,13 @@ class ClassificadorKNN(ModeloBase):
         
     #Obs: Foi utilizado IA nessa parte para auxiliar na construção dos métodos de treino, previsão e calculo da distância euclidiana.
     
-    def treinar(self, X, y):
+    def treinar(self, X: list[list[float]], y: list[Any]) -> None:
         self._validar_dados_treino(X, y)
         self.__x_treino = X
         self.__y_treino = y
         self._treinado = True
     
-    def __calcular_distancia_euclidiana(self, p1, p2):
+    def __calcular_distancia_euclidiana(self, p1: list[float], p2: list[float]) -> float:
         """Distância euclidiana é a distância entre dois pontos no espaço através de uma linha reta"""
         resultados = []
         for a, b in zip(p1, p2):
@@ -36,13 +37,13 @@ class ClassificadorKNN(ModeloBase):
         return math.sqrt(soma)
        
     @property
-    def qtd_amostras_treinadas(self):
+    def qtd_amostras_treinadas(self) -> int:
         if self.__x_treino is None:
             return 0
         else:
             return len(self.__x_treino)
     
-    def prever(self, x):
+    def prever(self, x: list[list[float]]) -> list[Any]:
         #Chama o método da classe mãe para fazer a verificação
         self._garantir_treinado()
         
@@ -62,13 +63,13 @@ class ClassificadorKNN(ModeloBase):
             
         return resultados
     
-    def __str__(self):
+    def __str__(self) -> str:
         """descrever sobre o estado de um objeto atual para o usuário"""
         
         status = "Treinado" if self.__x_treino is not None else "Não treinado"
         return f"ClassificadorKNN (k = {self.k}), Status = {status}"
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         """usado para depuração, facilitando a visualização da configuração do projeto."""
         
         return f"ClassificadorKNN(k = {self.k})"
