@@ -1,8 +1,7 @@
 
 import unittest
 
-from src.dominio.classificador_knn import ClassificadorKNN
-
+from src.servicos.classificador_knn import ClassificadorKNN
 
 class TestClassificadorKNN(unittest.TestCase):
 
