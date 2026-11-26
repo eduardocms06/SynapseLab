@@ -4,6 +4,7 @@ import time
 from copy import deepcopy
 
 from src.dominio.resultado_execucao import ResultadoExecucao
+from src.padroes.configuracao_global import ConfiguracaoGlobal
 
 
 class HistoricoExecucao:
@@ -62,7 +63,9 @@ class HistoricoExecucao:
 class AvaliadorConcorrente:
     """Executa modelos ou folds em threads com um limite de workers."""
 
-    def __init__(self, max_workers=4):
+    def __init__(self, max_workers=None):
+        if max_workers is None:
+            max_workers = ConfiguracaoGlobal().max_workers
         if type(max_workers) is not int or max_workers < 1:
             raise ValueError("max_workers deve ser inteiro positivo.")
         self.__max_workers = max_workers
@@ -72,7 +75,8 @@ class AvaliadorConcorrente:
     def max_workers(self):
         return self.__max_workers
 
-    def _executar_etapa_com_lock(self, modelo, dados_treino, dados_teste, historico, fold=None):
+    def _executar_etapa_com_lock(self, modelo, dados_treino, dados_teste, historico,
+                                fold=None, ao_evento=None):
         """Treina uma copia do modelo e registra seu resultado."""
         X_treino, y_treino = dados_treino
         X_teste, y_teste = dados_teste
@@ -99,20 +103,26 @@ class AvaliadorConcorrente:
         # Trava do avaliador protege esta secao; historico tambem protege sua lista.
         with self.__trava:
             historico.registrar(registro)
+        if ao_evento is not None:
+            ao_evento({"tipo": "etapa_concluida", "resultado": registro.para_dict(),
+                       "fold": fold})
         return registro
 
-    def _executar_em_threads(self, tarefas):
-        """Inicia lotes limitados por max_workers e espera cada lote terminar."""
+    def _executar_em_threads(self, tarefas, parada_solicitada=None):
+        """Espera cada lote e nao inicia outros quando a parada e solicitada."""
         erros = []
 
         def rodar(tarefa):
             try:
-                tarefa()
+                if parada_solicitada is None or not parada_solicitada():
+                    tarefa()
             except Exception as erro:
                 with self.__trava:
                     erros.append(erro)
 
         for inicio in range(0, len(tarefas), self.__max_workers):
+            if parada_solicitada is not None and parada_solicitada():
+                break
             lote = tarefas[inicio:inicio + self.__max_workers]
             threads = [threading.Thread(target=rodar, args=(t,)) for t in lote]
             for thread in threads:
@@ -122,22 +132,25 @@ class AvaliadorConcorrente:
         if erros:
             raise RuntimeError("Falha em uma ou mais avaliacoes concorrentes.") from erros[0]
 
-    def comparar_modelos_paralelo(self, modelos, dataset, historico, *, dados_divididos=None):
+    def comparar_modelos_paralelo(self, modelos, dataset, historico, *, dados_divididos=None,
+                                  ao_evento=None, parada_solicitada=None):
         """Avalia modelos com Dataset ou com dados de treino/teste ja preparados."""
         if dados_divididos is None:
             treino, teste = dividir_dataset(dataset)
         else:
             treino, teste = dados_divididos
         tarefas = [
-            (lambda modelo=modelo: self._executar_etapa_com_lock(modelo, treino, teste, historico))
+            (lambda modelo=modelo: self._executar_etapa_com_lock(
+                modelo, treino, teste, historico, ao_evento=ao_evento))
             for modelo in modelos
         ]
-        self._executar_em_threads(tarefas)
+        self._executar_em_threads(tarefas, parada_solicitada)
         return historico
 
-    def validar_cruzada_paralela(self, modelo, dataset, k_folds, historico):
-        """Valida o modelo em folds disjuntos, com uma thread por fold."""
-        X, y = obter_arrays(dataset)
+    def validar_cruzada_paralela(self, modelo, dataset, k_folds, historico, *,
+                                ao_evento=None, parada_solicitada=None, dados_arrays=None):
+        """Valida o modelo em folds disjuntos e notifica o fim de cada fold."""
+        X, y = dados_arrays if dados_arrays is not None else obter_arrays(dataset)
         if type(k_folds) is not int or not 2 <= k_folds <= len(X):
             raise ValueError("k_folds deve estar entre 2 e a quantidade de amostras.")
         tarefas = []
@@ -148,8 +161,8 @@ class AvaliadorConcorrente:
             teste = ([X[j] for j in range(len(X)) if j in idx_teste],
                      [y[j] for j in range(len(y)) if j in idx_teste])
             tarefas.append(lambda treino=treino, teste=teste, fold=i: self._executar_etapa_com_lock(
-                modelo, treino, teste, historico, fold=fold))
-        self._executar_em_threads(tarefas)
+                modelo, treino, teste, historico, fold=fold, ao_evento=ao_evento))
+        self._executar_em_threads(tarefas, parada_solicitada)
         return historico
 
 
@@ -182,25 +195,42 @@ def dividir_dataset(dataset):
     )
 
 
-def executar_treinamentos(valores_k, tarefa_treinamento, historico=None):
-    """Inicia treinamentos concorrentes e registra os resultados no historico."""
+def executar_treinamentos(valores_k, tarefa_treinamento, historico=None, *,
+                          ao_resultado=None, parada_solicitada=None, max_workers=None):
+    """Executa treinamentos legados e opcionalmente emite eventos por resultado."""
     if historico is None:
         historico = HistoricoExecucao()
     erros = []
     trava_erros = threading.Lock()
+    valores_k = list(valores_k)
+    if max_workers is None:
+        max_workers = len(valores_k) or 1
+    if type(max_workers) is not int or max_workers < 1:
+        raise ValueError("max_workers deve ser inteiro positivo.")
 
     def executar_tarefa(k):
         try:
-            historico.registrar_resultado(tarefa_treinamento(k))
+            if parada_solicitada is not None and parada_solicitada():
+                return
+            resultado = tarefa_treinamento(k)
+            historico.registrar_resultado(resultado)
+            if ao_resultado is not None:
+                ao_resultado(resultado)
         except Exception as erro:
             with trava_erros:
                 erros.append(erro)
 
-    threads = [threading.Thread(target=executar_tarefa, args=(k,)) for k in valores_k]
-    for thread in threads:
-        thread.start()
-    for thread in threads:
-        thread.join()
+    for inicio in range(0, len(valores_k), max_workers):
+        if parada_solicitada is not None and parada_solicitada():
+            break
+        lote = valores_k[inicio:inicio + max_workers]
+        threads = [threading.Thread(target=executar_tarefa, args=(k,)) for k in lote]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+        if erros:
+            break
     if erros:
         raise RuntimeError("Um ou mais treinamentos falharam.") from erros[0]
     return historico

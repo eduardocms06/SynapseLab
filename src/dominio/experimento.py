@@ -1,8 +1,12 @@
 """Coordena experimentos com modelos, historico e avaliacao concorrente."""
 import json
 from copy import deepcopy
+from pathlib import Path
+import threading
 
 from src.persistencia.armazenamento import PersistenciaCSV, PersistenciaJSON
+from src.padroes.configuracao_global import ConfiguracaoGlobal
+from src.padroes.observador_treino import IObservadorTreino
 from src.servicos.concorrencia import (
     AvaliadorConcorrente, HistoricoExecucao,
     dividir_dataset, executar_treinamentos,
@@ -24,6 +28,10 @@ class Experimento:
         self.__historico = HistoricoExecucao()
         self.__avaliador = AvaliadorConcorrente()
         self.__tempo_total = None
+        self.__configuracao = ConfiguracaoGlobal()
+        self.__observadores = []
+        self.__trava_observadores = threading.Lock()
+        self.__parada = threading.Event()
         self.__modo_legado = X_treino is not None
 
         if self.__modo_legado:
@@ -57,6 +65,44 @@ class Experimento:
     def modelos(self):
         return self.__modelos.copy()
 
+    def inscrever(self, observador):
+        """Inscreve um observador sem duplicar a mesma instancia."""
+        if not isinstance(observador, IObservadorTreino):
+            raise TypeError("O observador deve implementar IObservadorTreino.")
+        with self.__trava_observadores:
+            if observador in self.__observadores:
+                return False
+            self.__observadores.append(observador)
+            return True
+
+    def remover(self, observador):
+        """Remove um observador previamente inscrito."""
+        with self.__trava_observadores:
+            if observador not in self.__observadores:
+                return False
+            self.__observadores.remove(observador)
+            return True
+
+    def notificar(self, evento):
+        """Avisa os observadores fora do Lock e recolhe pedidos de parada."""
+        mensagem = {"titulo": self.__titulo, **evento}
+        with self.__trava_observadores:
+            observadores = self.__observadores.copy()
+        for observador in observadores:
+            observador.atualizar(deepcopy(mensagem))
+            if observador.parada_solicitada:
+                self.__parada.set()
+
+    @property
+    def parada_solicitada(self):
+        return self.__parada.is_set()
+
+    def _notificar_fim(self):
+        if self.__parada.is_set():
+            self.notificar({"tipo": "parada_antecipada", "total_resultados": len(self.__historico)})
+        self.notificar({"tipo": "fim_experimento", "total_resultados": len(self.__historico),
+                        "tempo_total": self.__tempo_total})
+
     def adicionar_modelo(self, modelo):
         if not callable(getattr(modelo, "treinar", None)) or not callable(getattr(modelo, "prever", None)):
             raise TypeError("O modelo precisa ter treinar(X, y) e prever(X).")
@@ -78,15 +124,25 @@ class Experimento:
         if not self.__modelos:
             raise ValueError("Adicione ao menos um modelo antes de executar.")
         self.__historico = HistoricoExecucao()
-        dados = self._dados_para_avaliacao()
-        avaliador = self.__avaliador if concorrente else AvaliadorConcorrente(max_workers=1)
-        with SessaoTreinamento(self.__titulo) as sessao:
-            avaliador.comparar_modelos_paralelo(
-                self.__modelos, self.__dataset, self.__historico,
-                dados_divididos=dados,
-            )
-        self.__tempo_total = sessao.tempo_total
-        return self.__historico
+        self.__tempo_total = None
+        self.__parada.clear()
+        try:
+            self.notificar({"tipo": "inicio_experimento"})
+            dados = self._dados_para_avaliacao()
+            avaliador = self.__avaliador if concorrente else AvaliadorConcorrente(max_workers=1)
+            with SessaoTreinamento(self.__titulo) as sessao:
+                avaliador.comparar_modelos_paralelo(
+                    self.__modelos, self.__dataset, self.__historico,
+                    dados_divididos=dados,
+                    ao_evento=self.notificar,
+                    parada_solicitada=self.__parada.is_set,
+                )
+            self.__tempo_total = sessao.tempo_total
+            self._notificar_fim()
+            return self.__historico
+        except Exception as erro:
+            self.notificar({"tipo": "erro_experimento", "erro": str(erro)})
+            raise
 
     def executar_avaliacao_sequencial(self):
         return self._avaliar(concorrente=False)
@@ -119,17 +175,35 @@ class Experimento:
             acuracia = sum(a == b for a, b in zip(previsoes, y_teste)) / len(y_teste)
             return {"modelo": "KNN", "k": k, "acuracia": acuracia}
 
-        with SessaoTreinamento("Experimento KNN") as sessao:
-            self.__historico = executar_treinamentos(valores_k, avaliar_k)
-        self.__tempo_total = sessao.tempo_total
-        resultados = sorted(self.__historico.obter_resultados(), key=lambda r: r["k"])
-        melhor = max(resultados, key=lambda r: (r["acuracia"], -r["k"]))
-        return {"resultados": resultados, "melhor_modelo": melhor,
-                "tempo_total": self.__tempo_total}
+        self.__parada.clear()
+        self.__tempo_total = None
+        self.__historico = HistoricoExecucao()
+        try:
+            self.notificar({"tipo": "inicio_experimento"})
+            with SessaoTreinamento("Experimento KNN") as sessao:
+                executar_treinamentos(
+                    valores_k, avaliar_k, self.__historico,
+                    ao_resultado=lambda resultado: self.notificar({
+                        "tipo": "etapa_concluida",
+                        "resultado": {"nome_modelo": "KNN", **resultado},
+                    }),
+                    parada_solicitada=self.__parada.is_set,
+                    max_workers=self.__avaliador.max_workers,
+                )
+            self.__tempo_total = sessao.tempo_total
+            resultados = sorted(self.__historico.obter_resultados(), key=lambda r: r["k"])
+            melhor = max(resultados, key=lambda r: (r["acuracia"], -r["k"]))
+            self._notificar_fim()
+            return {"resultados": resultados, "melhor_modelo": melhor,
+                    "tempo_total": self.__tempo_total}
+        except Exception as erro:
+            self.notificar({"tipo": "erro_experimento", "erro": str(erro)})
+            raise
 
     def salvar_relatorios(self, relatorio=None):
         if relatorio is None:
             relatorio = json.loads(self.gerar_relatorio_final())
-        PersistenciaJSON().salvar(relatorio, "resultados/relatorio_experimento.json")
+        diretorio = Path(self.__configuracao.diretorio_saida)
+        PersistenciaJSON().salvar(relatorio, diretorio / "relatorio_experimento.json")
         PersistenciaCSV().salvar(relatorio["resultados"],
-                                 "resultados/relatorio_experimento.csv")
+                                 diretorio / "relatorio_experimento.csv")

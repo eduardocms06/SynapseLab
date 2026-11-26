@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from src.persistencia.interface import IPersistencia
+from src.padroes.configuracao_global import ConfiguracaoGlobal
 
 try:
     from src.excecoes import PersistenciaError
@@ -12,6 +13,14 @@ except ImportError:
         def __init__(self, mensagem, caminho_arquivo=""):
             self.caminho_arquivo = str(caminho_arquivo)
             super().__init__(mensagem)
+
+
+def _resolver_caminho(caminho):
+    """Usa o diretorio global quando o caminho contem apenas o nome do arquivo."""
+    caminho = Path(caminho)
+    if caminho.parent == Path("."):
+        return Path(ConfiguracaoGlobal().diretorio_saida) / caminho
+    return caminho
 
 
 def _lancar_erro(acao, caminho, erro):
@@ -35,7 +44,7 @@ class PersistenciaJSON(IPersistencia):
                 objeto = objeto.para_dict()
             # Serializa antes de abrir: dados invalidos nao apagam arquivo anterior.
             texto = json.dumps(objeto, indent=4, ensure_ascii=False)
-            caminho = Path(caminho)
+            caminho = _resolver_caminho(caminho)
             caminho.parent.mkdir(parents=True, exist_ok=True)
             with open(caminho, "w", encoding="utf-8") as arquivo:
                 arquivo.write(texto)
@@ -44,7 +53,7 @@ class PersistenciaJSON(IPersistencia):
 
     def carregar(self, caminho):
         try:
-            with open(caminho, "r", encoding="utf-8") as arquivo:
+            with open(_resolver_caminho(caminho), "r", encoding="utf-8") as arquivo:
                 dados = json.load(arquivo)
             if isinstance(dados, dict) and dados.get("__tipo__") == "Dataset":
                 return self._desserializar_dataset(dados)
@@ -88,7 +97,7 @@ class PersistenciaCSV(IPersistencia):
             colunas = list(registros[0])
             if any(set(r) != set(colunas) for r in registros):
                 raise ValueError("As linhas CSV precisam ter as mesmas colunas.")
-            caminho = Path(caminho)
+            caminho = _resolver_caminho(caminho)
             caminho.parent.mkdir(parents=True, exist_ok=True)
             with open(caminho, "w", newline="", encoding="utf-8") as arquivo:
                 escritor = csv.DictWriter(arquivo, fieldnames=colunas)
@@ -99,7 +108,7 @@ class PersistenciaCSV(IPersistencia):
 
     def carregar(self, caminho):
         try:
-            with open(caminho, "r", newline="", encoding="utf-8") as arquivo:
+            with open(_resolver_caminho(caminho), "r", newline="", encoding="utf-8") as arquivo:
                 return list(csv.DictReader(arquivo))
         except (OSError, UnicodeError, csv.Error) as erro:
             _lancar_erro("carregar CSV", caminho, erro)
