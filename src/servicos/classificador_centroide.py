@@ -1,5 +1,4 @@
 from src.dominio.modelo_base import ModeloBase
-from classificador_knn import ClassificadorKNN
 import math
 from typing import Any
 class ClassificadorCentroide(ModeloBase):
