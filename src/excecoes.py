@@ -1,7 +1,9 @@
 
 class SynapseLabError(Exception):
     """Exceção principal do projeto SynapseLab."""
-    pass
+    def __init__(self, mensagem: str) -> None:
+        self.mensagem = mensagem
+        super().__init__(mensagem)
 
 
 class DimensoesIncompativeisError(SynapseLabError):
@@ -26,4 +28,8 @@ class PersistenciaError(SynapseLabError):
 
 class HiperparametroInvalidoError(SynapseLabError):
     """Erro quando um hiperparâmetro é inválido."""
+    pass
+
+class ConcorrenciaError(SynapseLabError):
+    """Erro em execuções paralelas ou falhas em threads."""
     pass
