@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from collections import Counter
 from typing import Any
+from src.excecoes import DimensoesIncompativeisError
 class IModelo(ABC):
     """Interface que define parâmetros obrigatórios para todos os modelos do projeto."""
     
@@ -45,7 +46,9 @@ class ModeloBase(IModelo):
     #Verifica se os dados estão corretos, se o tamanho de X e y são iguais.
     def _validar_dados_treino(self, X: list[list[float]], y: list[Any]):
         if len(X) != len(y):
-            raise ValueError("Os dados para treinamento são inválidos")
+            raise DimensoesIncompativeisError(
+                f"Os vetores informados são imcompatíveis {len(X)} é diferente de {len(y)}"
+            )
     
     #O raise ValueError é somente temporário até a criação das Exceções.
     def _garantir_treinado(self) -> None:
