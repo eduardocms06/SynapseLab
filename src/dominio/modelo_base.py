@@ -25,6 +25,10 @@ class ModeloBase(IModelo):
     """Classe abstrata, herdando de IModelo, implementado aquilo que será comum em todos os classificadores."""
     def __init__(self, nome):
         super().__init__()
+        if not isinstance(nome, str) or not nome.strip():
+            raise DadoInvalidoError(
+                f" O nome '{nome}' não é válido"
+            )
         self._treinado = False
         self._nome = nome
         
