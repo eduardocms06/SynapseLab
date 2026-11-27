@@ -18,14 +18,18 @@ class Metrica:
     @staticmethod
     def _contar_resultados(y_real: list, y_pred: list, classe_pos: Any)-> tuple[int, int, int]:
         """Calcula verdadeiros positivos, falso positivos e falsos negativos para a classe positiva informada"""
+        
+        if classe_pos is None or (classe_pos not in y_real and classe_pos not in y_pred):
+            raise DadoInvalidoError(f"A classe positiva {classe_pos} não é válida ou não foi encontrada nos dados passados.")
+            
         vp = 0
         fp = 0
         fn = 0
-        
+             
         for real, pred in zip(y_real, y_pred):
             if real == classe_pos and pred == classe_pos:
                 vp +=1
-            #Quando o modelo chuta a classe positiva mas erra 
+            #Verifica quando o modelo chuta a classe positiva mas erra 
             elif real != classe_pos and pred == classe_pos:         
                 fp +=1
             elif real == classe_pos and pred != classe_pos:
