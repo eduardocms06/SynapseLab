@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from collections import Counter
 from typing import Any
 from src.excecoes import DimensoesIncompativeisError
+from src.excecoes import ModeloNaoTreinadoError
 class IModelo(ABC):
     """Interface que define parâmetros obrigatórios para todos os modelos do projeto."""
     
@@ -53,7 +54,9 @@ class ModeloBase(IModelo):
     #O raise ValueError é somente temporário até a criação das Exceções.
     def _garantir_treinado(self) -> None:
         if not self.treinado:
-            raise ValueError("O modelo ainda não foi treinado.")
+            raise ModeloNaoTreinadoError(
+                f" O modelo {self.nome_modelo} ainda não foi treinado. Status: {self.treinado}"
+            )
         
     #Texto ser mostrado para o usuário identificar o nome do modelo e se ele está treinado ou não através de True ou False.
     def __str__(self) -> str:
