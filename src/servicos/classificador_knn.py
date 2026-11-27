@@ -16,8 +16,9 @@ class ClassificadorKNN(ModeloBase):
     @k.setter
     def k(self, valor: int) -> None:
         """ Verificação se o valor de K definido é válido antes de sua instanciação."""
-        if not isinstance(valor, int) or valor <= 0:
-            raise ValueError("K deve ser um número inteiro positivo.")
+            
+        if not isinstance(valor, int) or (valor <= 0):
+            raise HiperparametroInvalidoError("K deve ser um número inteiro positivo.")
         self.__k = valor
         
     #Obs: Foi utilizado IA nessa parte para auxiliar na construção dos métodos de treino, previsão e calculo da distância euclidiana.
