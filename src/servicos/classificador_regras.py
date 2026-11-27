@@ -57,13 +57,15 @@ class ClassificadorRegras(ModeloBase):
 
         rotulos_acima = []
         rotulos_abaixo = []  
-          
-        for amostra, rotulo in zip(X, y):
-            
-            if amostra[self.__indice_corte] >= self.__limiar:
-                rotulos_acima.append(rotulo)
-            else:
-                rotulos_abaixo.append(rotulo)
+        try: 
+            for amostra, rotulo in zip(X, y):
+                
+                if amostra[self.__indice_corte] >= self.__limiar:
+                    rotulos_acima.append(rotulo)
+                else:
+                    rotulos_abaixo.append(rotulo)
+        except IndexError as erro:
+            raise DadoInvalidoError(f"índice de corte fora dos limites das colunas {len(X[0])} colunas") from erro
                 
         """FallBack de segurança, contra valores absurdos no limiar, sendo aa classe padrão um 'chute' da classe mais votada em y"""
         classe_padrao = self._votar_majoritario(y)
