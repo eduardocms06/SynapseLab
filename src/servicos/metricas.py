@@ -1,5 +1,5 @@
 from typing import Any
-from src.excecoes import DimensoesIncompativeisError
+from src.excecoes import DimensoesIncompativeisError, DadoInvalidoError
 class Metrica:
     """A classe métrica deve conter seus métodos como estáticos, sendo utilizada para consultar cálculos,
     funciona como módulo utilitário dispensando parâmetros self. permitindo chamadas diretas."""
