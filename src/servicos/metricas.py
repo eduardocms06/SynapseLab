@@ -94,9 +94,9 @@ class Metrica:
         try:
             #Obtém todas as classes únicas e ordenadas
             classes = sorted(set(y_real) | set(y_pred))
-        except TypeError:
-            # cria um dicionário com os itens da lista como chaves, mantendo a ordem de execução e retirando duplicidades.
-            classes = list(dict.fromkeys(y_real + y_pred))
+        except TypeError as erro:
+            DadoInvalidoError(f"Os dados inseridos em 'y_real' e 'y_pred' devem ser imutáveis e comparaveis entre si.")
+        
             
         #Prepara a estrutura da matriz com um dicionário de dicionário preenchendo todas as combinações possíveis entre reais e preditas com 0
         matriz = {
