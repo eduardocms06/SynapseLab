@@ -21,10 +21,14 @@ class ClassificadorCentroide(ModeloBase):
             raise DadoInvalidoError("O parâmetro em 'amostras' não pode estar vazio.")
         
         ponto_centroide = []
-        for coluna in zip(*amostras):
-            #coluna irá receber (1º posição, 2º posição) a cada rodada do for
-            media = sum(coluna) / len(coluna)
-            ponto_centroide.append(media)
+        try: 
+            for coluna in zip(*amostras):
+                #coluna irá receber (1º posição, 2º posição) a cada rodada do for
+                media = sum(coluna) / len(coluna)
+                ponto_centroide.append(media)
+        except TypeError as erro:
+            raise DadoInvalidoError("O valor passado em 'amostra' deve ser apenas valores numéricos")
+        
         return ponto_centroide
     
     def treinar(self, X: list[list[float]], y: list[Any]) -> None:
