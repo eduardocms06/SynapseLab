@@ -1,6 +1,7 @@
 from src.dominio.modelo_base import ModeloBase
 import math
 from typing import Any
+from src.excecoes import DadoInvalidoError, HiperparametroInvalidoError
 class ClassificadorCentroide(ModeloBase):
     """Calcula o ponto médio de uma classe, por exemplo, se Gato tem duas amostras: [2.0, 10.0] e [4.0, 20.0]
         O centroide de Gato é a média de cada coluna [3.0, 15.0]"""
@@ -16,6 +17,9 @@ class ClassificadorCentroide(ModeloBase):
     def __calcular_centroides(self, amostras: list[list[float]]) -> list[float]:    
         """ '*amostras' é equivalente a: (2.0, 4.0) e (10.0, 20.0) de [[2.0, 10.0], [4.0, 20.0]]
             sendo usado para reunir elementos pela posição em uma tupla com a ajuda de zip"""
+        if not amostras:
+            raise DadoInvalidoError("O parâmetro em 'amostras' não pode estar vazio.")
+        
         ponto_centroide = []
         for coluna in zip(*amostras):
             #coluna irá receber (1º posição, 2º posição) a cada rodada do for
