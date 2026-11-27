@@ -51,7 +51,7 @@ class ClassificadorRegras(ModeloBase):
             try: 
                 lista_peso = [linha[self.__indice_corte] for linha in X]
             except IndexError as erro:
-                raise DadoInvalidoError(f"índice de corte fora dos limites das colunas {len(X[0])} colunas")
+                raise DadoInvalidoError(f"índice de corte fora dos limites das colunas {len(X[0])} colunas") from erro
             
             self.__limiar = sum(lista_peso) / len(lista_peso)
 
@@ -81,16 +81,19 @@ class ClassificadorRegras(ModeloBase):
             para cada amostra recebida"""
         
         self._garantir_treinado()
-        
+        if not x:
+            raise DadoInvalidoError("Os dados para previsão 'x' não devem estar vazios")
         predicoes = []
-        
-        for amostra in x:
-            valor = amostra[self.__indice_corte]
-            
-            if valor >= self.__limiar:
-                predicoes.append(self.__classe_acima)
-            else:
-                predicoes.append(self.__classe_abaixo)
+        try: 
+            for amostra in x:
+                valor = amostra[self.__indice_corte]
+                
+                if valor >= self.__limiar:
+                    predicoes.append(self.__classe_acima)
+                else:
+                    predicoes.append(self.__classe_abaixo)
+        except IndexError as erro:
+            raise DadoInvalidoError(f"O parâmetro passado em indice_corte {self.__indice_corte} está fora dos limites das colunas")
                 
         return predicoes
         
