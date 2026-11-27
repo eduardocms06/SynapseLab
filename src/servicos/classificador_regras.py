@@ -1,14 +1,16 @@
 from src.dominio.modelo_base import ModeloBase
 from collections import Counter
 from typing import Any
-
+from src.excecoes import DadoInvalidoError, HiperparametroInvalidoError
 #Foi utilizado ajuda de LLM para a criação e retiraar dúvidas sobre como fazer as regras do classificador.
 class ClassificadorRegras(ModeloBase):
     """Modelo classificador simples usado somente para comparação. Se o modelo ClassificadorKNN for pior que ele, não compensa utilizar o classificador"""
     
     def __init__(self, nome = "Classificador por Regras", limiar=None, indice_corte=0):
         super().__init__(nome)
-        
+        if isinstance(indice_corte, bool) or indice_corte < 0 or not (isinstance(indice_corte, int)):
+            raise HiperparametroInvalidoError(f"O valor {indice_corte} passado para o índice de corte deve ser inteiro maior ou igual a 0")
+            
         self.__limiar = limiar
         self.__indice_corte = indice_corte
         self.__classe_acima = None
@@ -46,7 +48,11 @@ class ClassificadorRegras(ModeloBase):
         
         #Se o limiar não foi fixado, calcula pela média da coluna de corte
         if self.__limiar is None:
-            lista_peso = [linha[self.__indice_corte] for linha in X]
+            try: 
+                lista_peso = [linha[self.__indice_corte] for linha in X]
+            except IndexError as erro:
+                raise DadoInvalidoError(f"índice de corte fora dos limites das colunas {len(X[0])} colunas")
+            
             self.__limiar = sum(lista_peso) / len(lista_peso)
 
         rotulos_acima = []
