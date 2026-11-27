@@ -1,4 +1,5 @@
 from typing import Any
+from src.excecoes import DimensoesIncompativeisError
 class Metrica:
     """A classe métrica deve conter seus métodos como estáticos, sendo utilizada para consultar cálculos,
     funciona como módulo utilitário dispensando parâmetros self. permitindo chamadas diretas."""
@@ -10,7 +11,9 @@ class Metrica:
     @staticmethod
     def _validar_listas(y_real: list, y_pred: list) -> None:
         if len(y_real) != len(y_pred):
-            raise ValueError("As listas possuem dimensões diferentes.")
+            raise DimensoesIncompativeisError(
+                f"Os vetores informados são imcompatíveis quantidades de valores em y_real: {len(y_real)}, quantidade de valores em y_pred {len(y_pred)}"
+            )
     
     @staticmethod
     def _contar_resultados(y_real: list, y_pred: list, classe_pos: Any)-> tuple[int, int, int]:
