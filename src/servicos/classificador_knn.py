@@ -1,6 +1,7 @@
 from src.dominio.modelo_base import ModeloBase
 import math
 from typing import Any
+from src.excecoes import HiperparametroInvalidoError, DadoInvalidoError, DimensoesIncompativeisError
 class ClassificadorKNN(ModeloBase):
     def __init__(self,nome = "ClassificadorKNN", k = 3):
         super().__init__(nome)
@@ -25,6 +26,9 @@ class ClassificadorKNN(ModeloBase):
     
     def treinar(self, X: list[list[float]], y: list[Any]) -> None:
         self._validar_dados_treino(X, y)
+        if self.__k > len(X):
+            raise DadoInvalidoError(f"Não há vizinhos suficientes para fazer a verificação, uma vez que {self.k} é maior que a quantidade de elementos em X {X}")
+        
         self.__x_treino = X
         self.__y_treino = y
         self._treinado = True
@@ -47,10 +51,14 @@ class ClassificadorKNN(ModeloBase):
     def prever(self, x: list[list[float]]) -> list[Any]:
         #Chama o método da classe mãe para fazer a verificação
         self._garantir_treinado()
-        
+        if not x:
+            raise DadoInvalidoError("o parâmetro em X está vazio.")
         resultados = []
         for amostras in x:                                                          #Pega as amostras em X para fazer os cálculos necessários de previsão da IA
-
+            
+            if len(amostras) != len(self.__x_treino):
+                raise DimensoesIncompativeisError(f"O tamanho das dimensões não são equivalentes")
+            
             lista_de_pares = []
             for indice, ponto_de_treino in enumerate(self.__x_treino):
                 dist = self.__calcular_distancia_euclidiana(amostras, ponto_de_treino)
