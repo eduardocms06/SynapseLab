@@ -1,9 +1,8 @@
 from abc import ABC, abstractmethod
 from collections import Counter
 from typing import Any
-from src.excecoes import DimensoesIncompativeisError
-from src.excecoes import ModeloNaoTreinadoError
-from src.excecoes import DadoInvalidoError
+from src.excecoes import DimensoesIncompativeisError, DadoInvalidoError, ModeloNaoTreinadoError
+
 class IModelo(ABC):
     """Interface que define parâmetros obrigatórios para todos os modelos do projeto."""
     
@@ -27,7 +26,7 @@ class ModeloBase(IModelo):
         super().__init__()
         if not isinstance(nome, str) or not nome.strip():
             raise DadoInvalidoError(
-                f" O nome '{nome}' não é válido"
+                f"O nome '{nome}' não é válido"
             )
         self._treinado = False
         self._nome = nome
@@ -49,13 +48,26 @@ class ModeloBase(IModelo):
     def _votar_majoritario(self, lista: list[Any]) -> Any:
         if not lista:
             raise DadoInvalidoError(
-                f"A lista, '{lista}', passada como parâmetro não é válida. "
+                f"A lista, '{lista}', para votação majoritária não é válida. "
             )
         return Counter(lista).most_common(1)[0][0]
         
     #Verifica se os dados estão corretos, se o tamanho de X e y são iguais.
     def _validar_dados_treino(self, X: list[list[float]], y: list[Any]):
-        if len(X) != len(y):
+        try: 
+            qtd_X = len(X)
+            qtd_y = len(y)
+        except TypeError as erro:
+            raise DadoInvalidoError(
+                f" Os valores passados em 'X' e 'y' devem ser sequências válidas"
+            ) from erro
+            
+        if qtd_X == 0 or qtd_y == 0:
+            raise DadoInvalidoError(
+                "Os dados de treino 'X' e 'y' não podem estar vazios."
+            )
+            
+        if qtd_X != qtd_y:
             raise DimensoesIncompativeisError(
                 f"Os vetores informados são imcompatíveis {len(X)} é diferente de {len(y)}"
             )
@@ -64,7 +76,7 @@ class ModeloBase(IModelo):
     def _garantir_treinado(self) -> None:
         if not self.treinado:
             raise ModeloNaoTreinadoError(
-                f" O modelo {self.nome_modelo} ainda não foi treinado. Status: {self.treinado}"
+                f" O modelo {self.nome} ainda não foi treinado. Status: {self.treinado}"
             )
         
     #Texto ser mostrado para o usuário identificar o nome do modelo e se ele está treinado ou não através de True ou False.
