@@ -10,7 +10,16 @@ class Metrica:
     
     @staticmethod
     def _validar_listas(y_real: list, y_pred: list) -> None:
-        if len(y_real) != len(y_pred):
+        try:
+            qtd_real = len(y_real)
+            qtd_pred = len(y_pred)
+            
+        except TypeError as erro:
+            raise DadoInvalidoError(
+                f"As entradas 'y_real' e 'y_pred' devem ser listas ou conter sequências de dados válidos."
+            ) from erro
+        
+        if qtd_real != qtd_pred:
             raise DimensoesIncompativeisError(
                 f"Os vetores informados são imcompatíveis quantidades de valores em y_real: {len(y_real)}, quantidade de valores em y_pred {len(y_pred)}"
             )
