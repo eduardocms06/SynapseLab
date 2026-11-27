@@ -3,6 +3,7 @@ from collections import Counter
 from typing import Any
 from src.excecoes import DimensoesIncompativeisError
 from src.excecoes import ModeloNaoTreinadoError
+from src.excecoes import DadoInvalidoError
 class IModelo(ABC):
     """Interface que define parâmetros obrigatórios para todos os modelos do projeto."""
     
@@ -42,6 +43,10 @@ class ModeloBase(IModelo):
     
     #Decidir alterar _votar_majoritário para ModeloBase, pois mais de um modelo utiliza esse método, facilitando assim a sua utilização
     def _votar_majoritario(self, lista: list[Any]) -> Any:
+        if not lista:
+            raise DadoInvalidoError(
+                f"A lista, '{lista}', passada como parâmetro não é válida. "
+            )
         return Counter(lista).most_common(1)[0][0]
         
     #Verifica se os dados estão corretos, se o tamanho de X e y são iguais.
